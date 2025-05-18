@@ -1,21 +1,15 @@
 import { useImperativeHandle, useRef } from "react";
 import sytles from "./styles.module.scss";
 import { createPortal } from "react-dom";
+import { CustomDialogProps } from "../../types/CommonTypes";
 
-type Props = {
-  ref: React.Ref<{
-    showModal: () => void;
-    close: () => void;
-  }>;
-};
-
-const CustomDialog: React.FC<Props> = ({ ref }) => {
+const CustomDialog: React.FC<CustomDialogProps> = ({ children, ref }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useImperativeHandle(
     ref,
     () => ({
-      showModal: () => {
+      open: () => {
         if (dialogRef.current) {
           dialogRef.current.showModal();
         }
@@ -32,17 +26,8 @@ const CustomDialog: React.FC<Props> = ({ ref }) => {
   return (
     <>
       {createPortal(
-        <dialog ref={dialogRef}>
-          aaaaa
-          <button
-            onClick={() => {
-              if (dialogRef.current) {
-                dialogRef.current.close();
-              }
-            }}
-          >
-            close
-          </button>
+        <dialog className={sytles.dialog} ref={dialogRef}>
+          {children}
         </dialog>,
         document.body
       )}

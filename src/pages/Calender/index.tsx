@@ -4,6 +4,7 @@ import styles from "./styles.module.scss";
 import { useEffect, useState } from "react";
 import { getDateInNextMonth } from "../../utils/calender";
 import Result from "../../components/Result";
+import {fetchDailyActivities} from "../../api/dailyActivities";
 
 const Calender = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -39,6 +40,14 @@ const Calender = () => {
       setCurrentIndex((prevIndex) => (prevIndex += 1));
     }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetchDailyActivities("4e0a300b-e961-4388-bff2-8fd435c23d8c");
+      console.log(data);
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     setDisplayDates(getCalenderItem(currentDate));

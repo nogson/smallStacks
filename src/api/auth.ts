@@ -13,8 +13,7 @@ export const signUp = async ({
     password,
   });
 
-  if (error) throw error;
-  return data;
+  return { data, error };
 };
 
 export const signIn = async ({
@@ -24,17 +23,16 @@ export const signIn = async ({
   email: string;
   password: string;
 }) => {
-  console.log(email, password);
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
-  if (error) throw error;
-  return data;
+
+  return { data, error };
 };
 
 export const signOut = async () => {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
-  return error
+  return error;
 };

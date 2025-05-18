@@ -75,6 +75,7 @@ button {
   border: none;
   background: none;
   cursor: pointer;
+  outline: none;
 }
 
 input[type="text"],
@@ -89,4 +90,5 @@ input[type="search"] {
   margin: 0;
   font-size: inherit;
   font-family: inherit;
+  font-weight: normal;
 }

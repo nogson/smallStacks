@@ -16,6 +16,9 @@ const CalenderCell: React.FC<Props> = ({ date, month }) => {
     <>
       <span
         className={`${sytles.calenderCell} ${sytles[setClassName(date, month)]}`}
+        onClick={() => {
+          console.log("Clicked date:", date);
+        }}
       >
         {date.getDate()}
       </span>
