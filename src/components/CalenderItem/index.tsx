@@ -2,19 +2,37 @@ import styles from "./styles.module.scss";
 import { getDatesInMonth } from "../../utils/calender.ts";
 import CalenderCell from "../CalenderCell";
 import { useEffect, useState } from "react";
+import { DailyActivity } from "../../types/DatabaseTypes";
+import { toJSTISOString } from "../../utils/calender";
 
 type Props = {
-  date: Date;
+  data: { data: any; date: Date };
 };
 
-const CalenderItem: React.FC<Props> = ({ date }) => {
-  const [dates, setDates] = useState<Date[]>([]);
+const CalenderItem: React.FC<Props> = ({ data }) => {
+  const [dataForDate, setDataForDate] = useState<
+    { date: Date; data: DailyActivity | null }[]
+  >([]);
+
+  const getDataForDate = (dates: Date[]) => {
+    return dates.map((date) => {
+      const dayData = { date: date, data: null };
+      const key = toJSTISOString(date).split("T")[0];
+      const dataForKey = data.data.filter((d: DailyActivity) => d.date === key);
+      if (dataForKey) {
+        dayData.data = dataForKey;
+      }
+
+      return dayData;
+    });
+  };
 
   useEffect(() => {
-    const year = Number(date.getFullYear());
-    const month = Number(date.getMonth());
-    setDates(getDatesInMonth(year, month));
-  }, [date]);
+    const year = Number(data.date.getFullYear());
+    const month = Number(data.date.getMonth());
+    const dates = getDatesInMonth(year, month);
+    setDataForDate(getDataForDate(dates));
+  }, [data]);
 
   return (
     <>
@@ -30,11 +48,11 @@ const CalenderItem: React.FC<Props> = ({ date }) => {
             <li>Sat</li>
           </ul>
           <div className="days">
-            {dates.map((d) => (
+            {dataForDate.map((d) => (
               <CalenderCell
-                key={d.toISOString()}
-                month={Number(date.getMonth())}
-                date={d}
+                key={d.date.toISOString()}
+                month={Number(data.date.getMonth())}
+                data={d}
               />
             ))}
           </div>

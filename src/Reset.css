@@ -76,6 +76,9 @@ button {
   background: none;
   cursor: pointer;
   outline: none;
+  &:disabled {
+    cursor: not-allowed;
+  }
 }
 
 input[type="text"],

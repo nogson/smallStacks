@@ -1,62 +1,110 @@
 import CalenderItem from "../../components/CalenderItem";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import styles from "./styles.module.scss";
-import { useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { getDateInNextMonth } from "../../utils/calender";
 import Result from "../../components/Result";
-import {fetchDailyActivities} from "../../api/dailyActivities";
+import {
+  fetchDailyActivities,
+  addDailyActivity,
+} from "../../api/dailyActivities";
+import { useUser } from "../../context/UserContext";
+import { DailyActivity } from "../../types/DatabaseTypes";
+import { toJSTISOString } from "../../utils/calender";
+
+export const CellEventContext = createContext<(data: Date) => void>(() => {});
 
 const Calender = () => {
+  const { user } = useUser();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [currentIndex, setCurrentIndex] = useState(11); // 現在のスライドのインデックス
+  const [currentIndex, setCurrentIndex] = useState(11);
   const [headerTitle, setHeaderTitle] = useState("");
-  const [displayDates, setDisplayDates] = useState<Date[]>([]);
-  const maxIndex = 11; // スライドの最大インデックス
+  const [DisplayData, setDisplayData] = useState<{ data: any; date: Date }[]>(
+    []
+  );
+  const [dailyActivities, setDailyActivities] = useState<{
+    [key: string]: DailyActivity[];
+  }>();
+  const maxIndex = 11;
+
+  const formatDateToYYYYMM = (date: Date) => {
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${year}${month}`;
+  };
 
   const getHeaderTitle = () => {
-    const displayDate = displayDates[currentIndex];
+    const displayDate = DisplayData[currentIndex];
     if (!displayDate) return "";
-    const month = displayDate.toLocaleString("en-US", { month: "long" });
-    const year = displayDate.getFullYear();
-    return `${month} ${year}`;
+    return displayDate.date.toLocaleString("en-US", {
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  const getDailyActivitiesForMonth = (date: Date) => {
+    const YYYYMM = formatDateToYYYYMM(date);
+    return dailyActivities?.[YYYYMM] || [];
   };
 
   const getCalenderItem = (date: Date) => {
-    const items = [];
-    for (let i = -maxIndex; i <= 0; i++) {
-      items.push(getDateInNextMonth(date, i));
-    }
-    return items;
+    return Array.from({ length: maxIndex + 1 }, (_, i) => {
+      const offset = i - maxIndex;
+      const targetDate = getDateInNextMonth(date, offset);
+      return {
+        data: getDailyActivitiesForMonth(targetDate),
+        date: targetDate,
+      };
+    });
   };
 
   const handlePrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prevIndex) => (prevIndex -= 1));
-    }
+    if (currentIndex > 0) setCurrentIndex((prevIndex) => prevIndex - 1);
   };
 
   const handleNext = () => {
-    if (currentIndex < maxIndex) {
-      setCurrentIndex((prevIndex) => (prevIndex += 1));
-    }
+    if (currentIndex < maxIndex) setCurrentIndex((prevIndex) => prevIndex + 1);
+  };
+
+  const fetchAndSetDailyActivities = async () => {
+    const data = await fetchDailyActivities(user!.id);
+    const activities = data.reduce(
+      (acc, item) => {
+        const YYYYMM = item.date?.split("-").join("").slice(0, -2);
+        if (YYYYMM) {
+          acc[YYYYMM] = acc[YYYYMM] || [];
+          acc[YYYYMM].push(item);
+        }
+        return acc;
+      },
+      {} as { [key: string]: DailyActivity[] }
+    );
+
+    setDailyActivities(activities);
+  };
+
+
+
+  const cellOnClick = async (data: Date) => {
+    await addDailyActivity({
+      userId: user!.id,
+      date: toJSTISOString(data), // Use JST ISO string
+      activityType: "exercise",
+    });
+    await fetchAndSetDailyActivities();
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const data = await fetchDailyActivities("4e0a300b-e961-4388-bff2-8fd435c23d8c");
-      console.log(data);
-    };
-    fetchData();
+    fetchAndSetDailyActivities();
   }, []);
 
   useEffect(() => {
-    setDisplayDates(getCalenderItem(currentDate));
-  }, [currentIndex]);
+    setDisplayData(getCalenderItem(currentDate));
+  }, [dailyActivities]);
 
   useEffect(() => {
-    if (displayDates.length === 0) return;
-    setHeaderTitle(getHeaderTitle());
-  }, [displayDates]);
+    if (DisplayData.length > 0) setHeaderTitle(getHeaderTitle());
+  }, [DisplayData, currentIndex]);
 
   return (
     <>
@@ -77,14 +125,16 @@ const Calender = () => {
           <div
             className={styles.sliderContent}
             style={{
-              transform: `translateX(-${currentIndex * 100}%)`, // スライドを切り替える
+              transform: `translateX(-${currentIndex * 100}%)`,
             }}
           >
-            {displayDates.map((item, index) => (
-              <div key={index} className={styles.slide}>
-                {<CalenderItem date={item} />}
-              </div>
-            ))}
+            <CellEventContext value={cellOnClick}>
+              {DisplayData.map((item, index) => (
+                <div key={index} className={styles.slide}>
+                  <CalenderItem data={item} />
+                </div>
+              ))}
+            </CellEventContext>
           </div>
         </div>
       </div>

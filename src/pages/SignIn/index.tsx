@@ -35,6 +35,8 @@ const SignIn = () => {
 
     if (isSignIn) {
       res = await signIn({ email, password });
+      console.log("res", res);
+      navigate("/calender");
     } else {
       res = await signUp({ email, password });
     }

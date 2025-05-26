@@ -23,3 +23,17 @@ export const getDateInNextMonth = (date: Date, month: number): Date => {
 
   return d;
 };
+
+  export const toJSTISOString = (date: Date): string => {
+    const JST_OFFSET = 9 * 60 * 60 * 1000; // JST is UTC+9
+    const jstDate = new Date(date.getTime() + JST_OFFSET);
+
+    const year = jstDate.getFullYear();
+    const month = (jstDate.getMonth() + 1).toString().padStart(2, "0");
+    const day = jstDate.getDate().toString().padStart(2, "0");
+    const hours = jstDate.getHours().toString().padStart(2, "0");
+    const minutes = jstDate.getMinutes().toString().padStart(2, "0");
+    const seconds = jstDate.getSeconds().toString().padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000Z`;
+  };

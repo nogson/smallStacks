@@ -1,3 +1,4 @@
+
 export type CustomDialogProps = {
   children: React.ReactNode;
   ref: React.Ref<{
@@ -10,3 +11,4 @@ export type CustomDialogType = {
     open: () => void;
     close: () => void;
 }
+
