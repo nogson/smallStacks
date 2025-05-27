@@ -11,6 +11,8 @@ import {
 import { useUser } from "../../context/UserContext";
 import { DailyActivity } from "../../types/DatabaseTypes";
 import { toJSTISOString } from "../../utils/calender";
+import ActivityType from "../../components/ActivityType";
+import { ACTIVITY_TYPES } from "../../constants/activityTypes";
 
 export const CellEventContext = createContext<(data: Date) => void>(() => {});
 
@@ -25,6 +27,11 @@ const Calender = () => {
   const [dailyActivities, setDailyActivities] = useState<{
     [key: string]: DailyActivity[];
   }>();
+  const [slectedActivity, setSelectedActivity] = useState<{
+    type: string;
+    color: string;
+  }>(ACTIVITY_TYPES[0]); // Default to the first activity type
+
   const maxIndex = 11;
 
   const formatDateToYYYYMM = (date: Date) => {
@@ -83,13 +90,11 @@ const Calender = () => {
     setDailyActivities(activities);
   };
 
-
-
   const cellOnClick = async (data: Date) => {
     await addDailyActivity({
       userId: user!.id,
       date: toJSTISOString(data), // Use JST ISO string
-      activityType: "exercise",
+      activityType: slectedActivity.type,
     });
     await fetchAndSetDailyActivities();
   };
@@ -120,6 +125,12 @@ const Calender = () => {
           <button onClick={handleNext} disabled={currentIndex === maxIndex}>
             <LuChevronRight />
           </button>
+        </div>
+        <div>
+          <ActivityType
+            slectedActivity={slectedActivity}
+            setSelectedActivity={setSelectedActivity}
+          />
         </div>
         <div className={styles.calender}>
           <div

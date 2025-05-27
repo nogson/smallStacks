@@ -2,6 +2,7 @@ import sytles from "./styles.module.scss";
 import { CellEventContext } from "../../pages/Calender";
 import { useContext } from "react";
 import { DailyActivity } from "../../types/DatabaseTypes";
+import { ACTIVITY_TYPES } from "../../constants/activityTypes";
 
 type Props = {
   data: { date: Date; data: DailyActivity[] };
@@ -15,7 +16,16 @@ const CalenderCell: React.FC<Props> = ({ data, month }) => {
     return isCurrentMonth ? "active" : "inactive";
   };
 
-  console.log("CalenderCell data:", data.data);
+  const getStyle = (activityType: string) => {
+    const type = ACTIVITY_TYPES.find(
+      (activity) => activity.type === activityType
+    );
+
+    return {
+      background: type ? type.color : "#00e62a", // デフォルト色を設定
+      opacity: 0.2,
+    };
+  };
 
   return (
     <>
@@ -24,9 +34,11 @@ const CalenderCell: React.FC<Props> = ({ data, month }) => {
         onClick={() => cellEvent(data.date)}
       >
         <span className={sytles.date}> {data.date.getDate()}</span>
-        {data.data.map(() => (
+        {data.data.map((d) => (
           <>
-            <span className={sytles.stack}></span>
+            <span
+              style={getStyle(d.activity_type!)} // 関数を呼び出して戻り値を渡す
+            ></span>{" "}
           </>
         ))}
       </div>

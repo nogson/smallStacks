@@ -1,6 +1,6 @@
 import sytles from "./styles.module.scss";
 
-const Header = () => {
+const Result = () => {
   return (
     <>
       <div className={sytles.result}>result</div>
@@ -8,4 +8,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default Result;
