@@ -1,26 +1,26 @@
 import React from "react";
 import sytles from "./styles.module.scss";
 
+const ACTIVITY_TYPES = [
+  { type: "health", color: "#00e62a" },
+  { type: "study", color: "#00c7e6" },
+  { type: "other", color: "#e69d00" },
+];
+
 type ActivityType = {
   type: string;
   color: string;
 };
 
-type ActivityTypeProps ={
+type ActivityTypeProps = {
   slectedActivity: ActivityType;
   setSelectedActivity: (activity: ActivityType) => void;
-}
+};
 
 const ActivityType: React.FC<ActivityTypeProps> = ({
   slectedActivity,
   setSelectedActivity,
 }) => {
-  const activityType = [
-    { type: "health", color: "#00e62a" },
-    { type: "study", color: "#00c7e6" },
-    { type: "other", color: "#e69d00" },
-  ];
-
   const handleActivityChange = (activity: ActivityType) => {
     setSelectedActivity(activity);
   };
@@ -28,10 +28,12 @@ const ActivityType: React.FC<ActivityTypeProps> = ({
   return (
     <>
       <ul className={sytles.activityType}>
-        {activityType.map((activity) => (
+        {ACTIVITY_TYPES.map((activity) => (
           <li
             key={activity.type}
-            className={`${slectedActivity.type === activity.type ? sytles.active : ""}`}
+            className={`${
+              slectedActivity.type === activity.type ? sytles.active : ""
+            }`}
             onClick={() => handleActivityChange(activity)}
           >
             <span

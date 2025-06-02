@@ -35,11 +35,10 @@ const CalenderCell: React.FC<Props> = ({ data, month }) => {
       >
         <span className={sytles.date}> {data.date.getDate()}</span>
         {data.data.map((d) => (
-          <>
-            <span
-              style={getStyle(d.activity_type!)} // 関数を呼び出して戻り値を渡す
-            ></span>{" "}
-          </>
+          <span
+            key={d.id}
+            style={getStyle(d.activity_type!)} // 関数を呼び出して戻り値を渡す
+          ></span>
         ))}
       </div>
     </>

@@ -16,10 +16,30 @@ import { ACTIVITY_TYPES } from "../../constants/activityTypes";
 
 export const CellEventContext = createContext<(data: Date) => void>(() => {});
 
+const maxIndex = 11;
+
+const formatDateToYYYYMM = (date: Date) => {
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear();
+  return `${year}${month}`;
+};
+
+const getHeaderTitle = (
+  DisplayData: { date: Date }[],
+  currentIndex: number
+) => {
+  const displayDate = DisplayData[currentIndex];
+  if (!displayDate) return "";
+  return displayDate.date.toLocaleString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
+};
+
 const Calender = () => {
   const { user } = useUser();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [currentIndex, setCurrentIndex] = useState(11);
+  const [currentIndex, setCurrentIndex] = useState(maxIndex);
   const [headerTitle, setHeaderTitle] = useState("");
   const [DisplayData, setDisplayData] = useState<{ data: any; date: Date }[]>(
     []
@@ -30,24 +50,7 @@ const Calender = () => {
   const [slectedActivity, setSelectedActivity] = useState<{
     type: string;
     color: string;
-  }>(ACTIVITY_TYPES[0]); // Default to the first activity type
-
-  const maxIndex = 11;
-
-  const formatDateToYYYYMM = (date: Date) => {
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear();
-    return `${year}${month}`;
-  };
-
-  const getHeaderTitle = () => {
-    const displayDate = DisplayData[currentIndex];
-    if (!displayDate) return "";
-    return displayDate.date.toLocaleString("en-US", {
-      month: "long",
-      year: "numeric",
-    });
-  };
+  }>(ACTIVITY_TYPES[0]);
 
   const getDailyActivitiesForMonth = (date: Date) => {
     const YYYYMM = formatDateToYYYYMM(date);
@@ -93,7 +96,7 @@ const Calender = () => {
   const cellOnClick = async (data: Date) => {
     await addDailyActivity({
       userId: user!.id,
-      date: toJSTISOString(data), // Use JST ISO string
+      date: toJSTISOString(data),
       activityType: slectedActivity.type,
     });
     await fetchAndSetDailyActivities();
@@ -108,7 +111,8 @@ const Calender = () => {
   }, [dailyActivities]);
 
   useEffect(() => {
-    if (DisplayData.length > 0) setHeaderTitle(getHeaderTitle());
+    if (DisplayData.length > 0)
+      setHeaderTitle(getHeaderTitle(DisplayData, currentIndex));
   }, [DisplayData, currentIndex]);
 
   return (
