@@ -50,7 +50,7 @@ const Calender = () => {
   const [slectedActivity, setSelectedActivity] = useState<{
     type: string;
     color: string;
-  }>(ACTIVITY_TYPES[0]);
+  }>(ACTIVITY_TYPES[0] as { type: string; color: string });
 
   const getDailyActivitiesForMonth = (date: Date) => {
     const YYYYMM = formatDateToYYYYMM(date);
@@ -119,7 +119,7 @@ const Calender = () => {
     <>
       <div className={styles.calenderContainer}>
         <div className={styles.result}>
-          <Result />
+          <Result displayData={DisplayData[currentIndex]} />
         </div>
         <div className={styles.calenderHeader}>
           <button onClick={handlePrev} disabled={currentIndex === 0}>

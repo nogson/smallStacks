@@ -1,60 +1,84 @@
 import sytles from "./styles.module.scss";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useAnimations, useGLTF } from "@react-three/drei";
-import { Mesh } from "three";
+import { Mesh, SkinnedMesh } from "three";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
+import React from "react";
 
-type Props = {
+type ResultItemProps = {
   position?: [number, number, number];
   displayFrameNumber?: number; // フレーム番号を受け取る
-  scene: THREE.Group<THREE.Object3DEventMap>;
+  scene: THREE.Group<THREE.Object3DEventMap>; // シーンを受け取る
   animations: THREE.AnimationClip[]; // アニメーションを受け取る
 };
 
-const ResultItem: React.FC<Props> = ({
+const ResultItem: React.FC<ResultItemProps> = ({
   position,
   displayFrameNumber = 0,
   scene,
   animations,
 }) => {
-  console.log(position)
-  const { actions } = useAnimations(animations, scene); // アニメーションを適用
-  scene.traverse((child) => {
+  const memoizedScene = useMemo(() => scene.clone(), [scene]);
+
+  const memoizedAnimations = useMemo(
+    () => animations.map((anim) => anim.clone()),
+    [animations]
+  );
+
+  const { actions } = useAnimations(memoizedAnimations, memoizedScene);
+
+  memoizedScene.traverse((child) => {
     if (child instanceof Mesh) {
-      child.castShadow = true; // 影を落とす
-      child.receiveShadow = true; // 影を受け取る
+      child.castShadow = true;
+      child.receiveShadow = true;
+    }
+    if (child instanceof SkinnedMesh) {
+      child.skeleton.update(); // Ensure skeleton updates
     }
   });
-  // アニメーションを再生
+
   useEffect(() => {
     if (actions) {
-      const action = actions["Animation"];
+      const action = actions[Object.keys(actions)[0]]; // Use the first animation
       if (action) {
-        action.clampWhenFinished = true; // アニメーション終了時に停止
+        action.clampWhenFinished = true;
         action.loop = THREE.LoopOnce;
-        action.play(); // "AnimationName" を実際のアニメーション名に置き換える
+        action.play();
       }
     }
   }, [actions, displayFrameNumber]);
 
-  // フレーム監視して特定のフレームで停止
   useFrame(() => {
     if (actions) {
-      const action = actions["Animation"];
+      const action = actions[Object.keys(actions)[0]];
       if (action && action.isRunning()) {
-        const frameRate = 24; // アニメーションのフレームレート（例: 24fps）
-        const stopFrame = displayFrameNumber; // 停止したいフレーム番号
-        const stopTime = stopFrame / frameRate; // 停止したい時間を計算
+        const frameRate = 24;
+        const stopFrame = displayFrameNumber;
+        const stopTime = stopFrame / frameRate;
 
         if (action.time >= stopTime) {
-          action.paused = true; // アニメーションを一時停止
+          action.paused = true;
         }
       }
     }
   });
 
-  return <primitive object={scene} scale={0.25} position={position} />;
+  return <primitive object={memoizedScene} scale={0.25} position={position} />;
 };
 
-export default ResultItem;
+// Custom comparison function to prevent unnecessary re-renders
+const areEqual = (prevProps: ResultItemProps, nextProps: ResultItemProps) => {
+  if (prevProps.position && nextProps.position) {
+    return (
+      prevProps.position?.[0] === nextProps.position?.[0] &&
+      prevProps.position?.[1] === nextProps.position?.[1] &&
+      prevProps.position?.[2] === nextProps.position?.[2] &&
+      prevProps.displayFrameNumber === nextProps.displayFrameNumber
+    );
+  } else {
+    return false;
+  }
+};
+
+export default React.memo(ResultItem, areEqual);

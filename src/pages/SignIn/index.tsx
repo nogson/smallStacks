@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { signIn, signUp } from "../../api/auth";
 import styles from "./styles.module.scss";
 import { useAuth } from "../../hooks/useAuth";
@@ -35,7 +35,6 @@ const SignIn = () => {
 
     if (isSignIn) {
       res = await signIn({ email, password });
-      console.log("res", res);
       navigate("/calender");
     } else {
       res = await signUp({ email, password });
@@ -63,55 +62,57 @@ const SignIn = () => {
   return (
     <div className={styles.signIn}>
       <h1 className="logo">Small Stacks</h1>
-      <div className="signInForm">
-        <h2>{isSignIn ? "Sign in" : "Sign up"}</h2>
+      <Suspense fallback={null}>
+        <div className="signInForm">
+          <h2>{isSignIn ? "Sign in" : "Sign up"}</h2>
 
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="email">
-            <span>Email Address</span>
-            <input
-              type="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </label>
-          <label htmlFor="password">
-            <span>Password</span>
-            <input
-              type="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </label>
-          <button
-            className="button-primary-filled"
-            type="submit"
-            disabled={isLoading}
-          >
-            <span>{isSignIn ? "Sign in" : "Sign up"}</span>
-            {isLoading && <span className="loader"></span>}
-          </button>
-          {isSignIn ? (
-            <p className="toggleText">
-              Don't have an account?
-              <span className="link" onClick={toggleView}>
-                Sign up
-              </span>
-            </p>
-          ) : (
-            <p className="toggleText">
-              Already have an account?
-              <span className="link" onClick={toggleView}>
-                Sign in
-              </span>
-            </p>
-          )}
-        </form>
-      </div>
+          <form onSubmit={handleSubmit}>
+            <label htmlFor="email">
+              <span>Email Address</span>
+              <input
+                type="email"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </label>
+            <label htmlFor="password">
+              <span>Password</span>
+              <input
+                type="password"
+                name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </label>
+            <button
+              className="button-primary-filled"
+              type="submit"
+              disabled={isLoading}
+            >
+              <span>{isSignIn ? "Sign in" : "Sign up"}</span>
+              {isLoading && <span className="loader"></span>}
+            </button>
+            {isSignIn ? (
+              <p className="toggleText">
+                Don't have an account?
+                <span className="link" onClick={toggleView}>
+                  Sign up
+                </span>
+              </p>
+            ) : (
+              <p className="toggleText">
+                Already have an account?
+                <span className="link" onClick={toggleView}>
+                  Sign in
+                </span>
+              </p>
+            )}
+          </form>
+        </div>
+      </Suspense>
       <ErrorDialog error={error} modalRef={errorDialogRef} />
       <SignUpDialog isSignIn={isSignIn} modalRef={singUpDialogRef} />
     </div>
