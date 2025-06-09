@@ -3,13 +3,19 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Suspense, useEffect, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import ResultItem from "../ResultItem";
+import ResultBee from "../ResultBee";
 import { DailyActivity } from "../../types/DatabaseTypes";
+import { ACTIVITY_TYPES } from "../../constants/activityTypes";
 
 type Props = {
   displayData: { data: []; date: Date }; // displayDataの型を適切に定義する
 };
 
 const Result: React.FC<Props> = ({ displayData }) => {
+  const grassModel = useGLTF("/model/grass.glb"); // モデルを読み込む
+  const sunflowerModel = useGLTF("/model/sunflower.glb");
+  const models = [sunflowerModel, grassModel]; // モデルの配列
+
   return (
     <>
       <div className={sytles.result}>
@@ -17,35 +23,42 @@ const Result: React.FC<Props> = ({ displayData }) => {
           orthographic
           camera={{
             zoom: 50,
-            position: [4, 4, 4],
+            position: [4, 6, 4],
             near: 0.1,
             far: 100,
           }}
           style={{
-            backgroundColor: "#f0f0f0",
+            backgroundColor: "#5FE77E",
           }}
           shadows={"soft"}
         >
           <RotatingCamera />
           <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-            <planeGeometry args={[10, 10]} />
-            <meshStandardMaterial color="#FFEDBB" />
+            <planeGeometry args={[20, 20]} />
+            <meshStandardMaterial color="#5FE77E" />
           </mesh>
           <Suspense fallback={null}>
-            {displayData && <ResultItems displayData={displayData} />}
+            {displayData && (
+              <ResultItems
+                key={displayData.date.toISOString()} // displayData.dateの変更を検知して再レンダリング
+                displayData={displayData}
+                models={models} // モデルを渡す
+              />
+            )}
+            {displayData && displayData.data.length > 20 && <ResultBee />}
           </Suspense>
 
           <ambientLight intensity={1} />
           <directionalLight
             color={"#ffffff"}
-            intensity={1}
+            intensity={2}
             position={[2, 5, 2]}
             castShadow
           />
           <pointLight
             color={"#FDF8E8"}
-            intensity={10}
-            position={[0, 2, 0]}
+            intensity={15}
+            position={[2, 4, 2]}
             castShadow
           />
         </Canvas>
@@ -105,33 +118,59 @@ const getDataByDay = (itemCount: number[], displayData: any) => {
   });
 };
 
-const ResultItems = ({ displayData }: any) => {
+const ResultItems = ({ displayData, models }: any) => {
   const dateLength = getDateForMonthLength(displayData.date);
-  const { scene, animations } = useGLTF("/model/grass.glb"); // モデルを読み込む
+
   const itemCount = Array.from({ length: dateLength - 1 }, (_, index) => index);
-  const planeSize = 8;
+  const planeSize = 10;
   const columns = 7; // 1行に配置するアイテム数
   const rows = Math.ceil(itemCount.length / columns); // 必要な行数
   const spacingX = planeSize / columns; // x方向の間隔
-  const spacingZ = planeSize / rows; // z方向の間隔
+  const spacingZ = (planeSize + 2) / rows; // z方向の間隔
   const datas = getDataByDay(itemCount, displayData); // 月の日付を取得
+
+  const getModel = (data: any) => {
+    let model = models[0];
+
+    if (
+      data[0] &&
+      data[data.length - 1].activity_type === ACTIVITY_TYPES[0].type
+    ) {
+      model = models[0]; // 草のモデル
+    } else if (
+      data[0] &&
+      data[data.length - 1].activity_type === ACTIVITY_TYPES[1].type
+    ) {
+      model = models[1]; // ひまわりのモデル
+    }
+
+    return {
+      scene: model.scene.clone(),
+      animations: model.animations.map((anim: any) => anim.clone()),
+    };
+  };
 
   return (
     <>
       {datas.map((data, index) => {
         const row = Math.floor(index / columns); // 行番号
         const col = index % columns; // 列番号
-
+        const isEven = index % 2 === 0; // 偶数インデックスかどうか
+        const { scene, animations } = getModel(data);
         // x, z の位置を計算 (-planeSize / 2 から planeSize / 2 の範囲内に配置)
         const x = col * spacingX - planeSize / 2 + spacingX / 2;
-        const z = row * spacingZ - planeSize / 2 + spacingZ / 2;
+        const z =
+          row * spacingZ -
+          planeSize / 2 +
+          spacingZ / 2 +
+          (isEven ? 0.25 : -0.25);
         return (
           <ResultItem
             key={`result-item-${index}`} // 一意なキー
             position={[x, -0.05, z]} // 計算した位置
-            displayFrameNumber={data.length * 10} // 表示するフレーム数
-            scene={scene.clone()} // シーンを複製
-            animations={animations.map((anim) => anim.clone())} // アニメーションを複製
+            displayFrameNumber={data.length * 20} // 表示するフレーム数
+            scene={scene} // シーンを複製
+            animations={animations} // アニメーションを複製
           />
         );
       })}

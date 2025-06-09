@@ -10,6 +10,5 @@
   height: 100vh;
   max-width: 420px;
   width: 100vw;
-  padding: 0 16px;
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
