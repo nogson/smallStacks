@@ -14,7 +14,8 @@ type Props = {
 const Result: React.FC<Props> = ({ displayData }) => {
   const grassModel = useGLTF("/model/grass.glb"); // モデルを読み込む
   const sunflowerModel = useGLTF("/model/sunflower.glb");
-  const models = [sunflowerModel, grassModel]; // モデルの配列
+  const treeModel = useGLTF("/model/tree.glb"); // 追加のモデルを読み込む
+  const models = [sunflowerModel, grassModel, treeModel]; // モデルの配列
 
   return (
     <>
@@ -22,7 +23,7 @@ const Result: React.FC<Props> = ({ displayData }) => {
         <Canvas
           orthographic
           camera={{
-            zoom: 50,
+            zoom: 45,
             position: [4, 6, 4],
             near: 0.1,
             far: 100,
@@ -136,12 +137,17 @@ const ResultItems = ({ displayData, models }: any) => {
       data[0] &&
       data[data.length - 1].activity_type === ACTIVITY_TYPES[0].type
     ) {
-      model = models[0]; // 草のモデル
+      model = models[0];
     } else if (
       data[0] &&
       data[data.length - 1].activity_type === ACTIVITY_TYPES[1].type
     ) {
-      model = models[1]; // ひまわりのモデル
+      model = models[1];
+    } else if (
+      data[0] &&
+      data[data.length - 1].activity_type === ACTIVITY_TYPES[2].type
+    ) {
+      model = models[2];
     }
 
     return {
@@ -165,13 +171,15 @@ const ResultItems = ({ displayData, models }: any) => {
           spacingZ / 2 +
           (isEven ? 0.25 : -0.25);
         return (
-          <ResultItem
-            key={`result-item-${index}`} // 一意なキー
-            position={[x, -0.05, z]} // 計算した位置
-            displayFrameNumber={data.length * 20} // 表示するフレーム数
-            scene={scene} // シーンを複製
-            animations={animations} // アニメーションを複製
-          />
+          data.length > 0 && ( // データが存在する場合のみレンダリング
+            <ResultItem
+              key={`result-item-${index}`} // 一意なキー
+              position={[x, -0.05, z]} // 計算した位置
+              displayFrameNumber={data.length * 20} // 表示するフレーム数
+              scene={scene} // シーンを複製
+              animations={animations} // アニメーションを複製
+            />
+          )
         );
       })}
     </>

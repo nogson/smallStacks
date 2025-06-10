@@ -75,7 +75,7 @@ const ResultItem: React.FC<ResultItemProps> = ({
       }
     }
   }, [actions, displayFrameNumber]);
-
+  
   useEffect(() => {
     memoizedScene.rotation.set(0, Math.PI / Math.floor(Math.random() * 18), 0);
   }, [memoizedScene]);
