@@ -1,11 +1,13 @@
 import sytles from "./styles.module.scss";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Suspense, useEffect, useRef } from "react";
-import { useGLTF } from "@react-three/drei";
+import { OrbitControls, useGLTF } from "@react-three/drei";
 import ResultItem from "../ResultItem";
 import ResultBee from "../ResultBee";
+import ResultMole from "../ResultMole";
 import { DailyActivity } from "../../types/DatabaseTypes";
 import { ACTIVITY_TYPES } from "../../constants/activityTypes";
+import ResuletGround from "../ResultGround";
 
 type Props = {
   displayData: { data: []; date: Date }; // displayDataの型を適切に定義する
@@ -26,18 +28,23 @@ const Result: React.FC<Props> = ({ displayData }) => {
             zoom: 45,
             position: [4, 6, 4],
             near: 0.1,
-            far: 100,
+            far: 200,
           }}
           style={{
-            backgroundColor: "#5FE77E",
+            backgroundColor: "#87593D",
           }}
+          dpr={window.devicePixelRatio}
           shadows={"soft"}
         >
           <RotatingCamera />
-          <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-            <planeGeometry args={[20, 20]} />
-            <meshStandardMaterial color="#5FE77E" />
-          </mesh>
+          <OrbitControls
+            enableZoom={true}
+            enableRotate={false}
+            enablePan={false}
+            minZoom={20}
+            maxZoom={45}
+          />
+          <ResuletGround />
           <Suspense fallback={null}>
             {displayData && (
               <ResultItems
@@ -47,18 +54,19 @@ const Result: React.FC<Props> = ({ displayData }) => {
               />
             )}
             {displayData && displayData.data.length > 20 && <ResultBee />}
+            {displayData && displayData.data.length > 30 && <ResultMole />}
           </Suspense>
 
           <ambientLight intensity={1} />
           <directionalLight
-            color={"#ffffff"}
-            intensity={2}
-            position={[2, 5, 2]}
+            color={"#FDF8E8"}
+            intensity={3}
+            position={[2, 7, 2]}
             castShadow
           />
           <pointLight
             color={"#FDF8E8"}
-            intensity={15}
+            intensity={25}
             position={[2, 4, 2]}
             castShadow
           />
@@ -133,20 +141,11 @@ const ResultItems = ({ displayData, models }: any) => {
   const getModel = (data: any) => {
     let model = models[0];
 
-    if (
-      data[0] &&
-      data[data.length - 1].activity_type === ACTIVITY_TYPES[0].type
-    ) {
+    if (data[0] && data[0].activity_type === ACTIVITY_TYPES[0].type) {
       model = models[0];
-    } else if (
-      data[0] &&
-      data[data.length - 1].activity_type === ACTIVITY_TYPES[1].type
-    ) {
+    } else if (data[0] && data[0].activity_type === ACTIVITY_TYPES[1].type) {
       model = models[1];
-    } else if (
-      data[0] &&
-      data[data.length - 1].activity_type === ACTIVITY_TYPES[2].type
-    ) {
+    } else if (data[0] && data[0].activity_type === ACTIVITY_TYPES[2].type) {
       model = models[2];
     }
 
