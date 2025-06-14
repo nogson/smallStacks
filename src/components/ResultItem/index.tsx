@@ -1,10 +1,8 @@
-import sytles from "./styles.module.scss";
-import { useEffect, useMemo } from "react";
-import { useAnimations, useGLTF } from "@react-three/drei";
+import React, { useEffect, useMemo } from "react";
+import { useAnimations } from "@react-three/drei";
 import { Mesh, SkinnedMesh } from "three";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import React from "react";
 
 type ResultItemProps = {
   position: [number, number, number];
@@ -75,7 +73,7 @@ const ResultItem: React.FC<ResultItemProps> = ({
       }
     }
   }, [actions, displayFrameNumber]);
-  
+
   useEffect(() => {
     memoizedScene.rotation.set(0, Math.PI / Math.floor(Math.random() * 18), 0);
   }, [memoizedScene]);

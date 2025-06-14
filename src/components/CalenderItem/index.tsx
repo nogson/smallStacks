@@ -11,19 +11,17 @@ type Props = {
 
 const CalenderItem: React.FC<Props> = ({ data }) => {
   const [dataForDate, setDataForDate] = useState<
-    { date: Date; data: DailyActivity | null }[]
+    { date: Date; data: DailyActivity[] }[]
   >([]);
 
   const getDataForDate = (dates: Date[]) => {
     return dates.map((date) => {
-      const dayData = { date: date, data: null };
       const key = toJSTISOString(date).split("T")[0];
       const dataForKey = data.data.filter((d: DailyActivity) => d.date === key);
-      if (dataForKey) {
-        dayData.data = dataForKey;
-      }
-
-      return dayData;
+      return {
+        date: date,
+        data: dataForKey,
+      };
     });
   };
 

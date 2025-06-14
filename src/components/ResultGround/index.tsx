@@ -1,6 +1,5 @@
 import * as THREE from "three";
-import React, { Suspense } from "react";
-import sytles from "./styles.module.scss";
+import { Suspense } from "react";
 import { useTexture } from "@react-three/drei";
 
 const ResultGround = ({}) => {

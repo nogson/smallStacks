@@ -1,6 +1,5 @@
 import { User } from "@supabase/supabase-js";
 import { supabase } from "./supabaseClient";
-import { useNavigate } from "react-router-dom";
 
 export const fetchUser = async () => {
   const { data, error } = await supabase.auth.getSession();

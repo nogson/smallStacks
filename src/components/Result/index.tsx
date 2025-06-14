@@ -1,6 +1,6 @@
 import sytles from "./styles.module.scss";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense } from "react";
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import ResultItem from "../ResultItem";
 import ResultBee from "../ResultBee";
@@ -77,8 +77,6 @@ const Result: React.FC<Props> = ({ displayData }) => {
 };
 
 const RotatingCamera = () => {
-  const cameraRef = useRef(null);
-
   useFrame(({ camera }) => {
     const time = performance.now() * 0.0001; // 時間を基準に回転
     camera.position.x = Math.sin(time) * 10; // x軸を回転

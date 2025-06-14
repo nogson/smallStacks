@@ -5,7 +5,7 @@ import { DailyActivity } from "../../types/DatabaseTypes";
 import { ACTIVITY_TYPES } from "../../constants/activityTypes";
 
 type Props = {
-  data: { date: Date; data: DailyActivity[] };
+  data: { date: Date; data: DailyActivity[] | [] };
   month: number;
 };
 

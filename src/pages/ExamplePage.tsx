@@ -1,14 +1,13 @@
-import React, { use, useEffect } from "react";
+import { useEffect } from "react";
 import { useUser } from "../context/UserContext";
 
 const ExamplePage: React.FC = () => {
-  const { user, setUser } = useUser();
+  const { user } = useUser();
 
   useEffect(() => {
     // This effect runs when the component mounts
     console.log("User in ExamplePage:", user);
   }, [user]); // Dependency array to run effect when user changes
-
 
   return (
     <div>

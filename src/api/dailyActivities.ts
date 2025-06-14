@@ -5,16 +5,16 @@ type DailyActivity = {
   date: string;
   activityType: string;
 };
-type DailyActivityResponse = DailyActivity[];
-type DailyActivityError = {
-  message: string;
-  code: string;
-  details: string;
-};
-type DailyActivityResult = {
-  data: DailyActivityResponse | null;
-  error: DailyActivityError | null;
-};
+// type DailyActivityResponse = DailyActivity[];
+// type DailyActivityError = {
+//   message: string;
+//   code: string;
+//   details: string;
+// };
+// type DailyActivityResult = {
+//   data: DailyActivityResponse | null;
+//   error: DailyActivityError | null;
+// };
 
 export const fetchDailyActivities = async (userId: string) => {
   // const startDate = new Date(

@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-
 import "./App.css";
 import CalenderList from "./pages/Calender";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";

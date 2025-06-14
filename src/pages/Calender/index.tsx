@@ -38,7 +38,7 @@ const getHeaderTitle = (
 
 const Calender = () => {
   const { user } = useUser();
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate] = useState(new Date());
   const [currentIndex, setCurrentIndex] = useState(maxIndex);
   const [headerTitle, setHeaderTitle] = useState("");
   const [DisplayData, setDisplayData] = useState<{ data: any; date: Date }[]>(
